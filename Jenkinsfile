@@ -8,7 +8,7 @@ pipeline {
             steps {
                 echo sh(returnStdout: true, script: 'env')
                 script {
-                    mavenInstallationName = 'Maven 3'
+                    mavenInstallationName = 'M3'
                 }
             }
         }
@@ -21,7 +21,9 @@ pipeline {
         }
         stage('Test') {
             steps {
-                sh 'mvn test'
+                withMaven(maven: mavenInstallationName, mavenSettingsConfig: 'default-maven-settings.xml', mavenOpts: '-Xmx1024m') {
+                    sh 'mvn test'
+                }
             }
             post {
                 always {
