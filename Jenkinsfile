@@ -4,7 +4,7 @@ pipeline {
         stage('Build') {
             steps {
                 sh 'echo "Hello World"'
-                println("Hello again")
+                echo 'Hello again'
             }
         }
     }
