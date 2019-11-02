@@ -38,6 +38,7 @@ public class VetTests {
         assertThat(other.getFirstName()).isEqualTo(vet.getFirstName());
         assertThat(other.getLastName()).isEqualTo(vet.getLastName());
         assertThat(other.getId()).isEqualTo(vet.getId());
+        assertThat(true).isFalse();
     }
 
 }
