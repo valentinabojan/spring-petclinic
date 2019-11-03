@@ -22,5 +22,12 @@ pipeline {
                 }
             }
         }
+
+        stage('Deploy') {
+            steps {
+                input(message: 'Do you want to deploy?')
+                echo 'Deploying application...'
+            }
+        }
     }
 }
