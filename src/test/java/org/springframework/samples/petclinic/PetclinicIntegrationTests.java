@@ -16,7 +16,6 @@
 
 package org.springframework.samples.petclinic;
 
-import org.assertj.core.api.Assertions;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -36,6 +35,5 @@ public class PetclinicIntegrationTests {
     public void testFindAll() throws Exception {
         vets.findAll();
         vets.findAll(); // served from cache
-        Assertions.assertThat(true).isFalse();
     }
 }
