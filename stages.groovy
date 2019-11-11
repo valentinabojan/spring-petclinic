@@ -1,16 +1,16 @@
-void buildApplication() {
+public void buildApplication() {
     withMaven(maven: MAVEN_INSTALLATION, mavenSettingsConfig: MAVEN_SETTINGS_CONFIG) {
         sh 'mvn -DskipTests clean package'
     }
 }
 
-void runAllTests() {
+public void runAllTests() {
     withMaven(maven: MAVEN_INSTALLATION, mavenSettingsConfig: MAVEN_SETTINGS_CONFIG) {
         sh 'mvn test'
     }
 }
 
-void deployApplication() {
+public void deployApplication() {
     echo "Deploying application..."
 }
 
