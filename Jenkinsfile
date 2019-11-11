@@ -12,63 +12,82 @@ pipeline {
         stage('Build') {
             steps {
                 withMaven(maven: MAVEN_INSTALLATION, mavenSettingsConfig: MAVEN_SETTINGS_CONFIG) {
-                    sh 'mvn -DskipTests clean package'
+                    buildApplication()
                 }
-                script {
-                    statusComment = "[${env.JOB_NAME}] <${env.BUILD_URL}|#${env.BUILD_NUMBER}> ${env.STAGE_NAME} stage completed succesfully for ${env.GIT_BRANCH}"
-                    slackSend color: '#0000ff', message: statusComment
-                }
+                sendSlackNotificationForRegularStage()
             }
         }
 
         stage('Test') {
             steps {
                 withMaven(maven: MAVEN_INSTALLATION, mavenSettingsConfig: MAVEN_SETTINGS_CONFIG) {
-                    sh 'mvn test'
+                    runAllTests()
                 }
-                script {
-                    statusComment = "[${env.JOB_NAME}] <${env.BUILD_URL}|#${env.BUILD_NUMBER}> ${env.STAGE_NAME} stage completed succesfully for ${env.GIT_BRANCH}"
-                    slackSend color: '#0000ff', message: statusComment
-                }
+                sendSlackNotificationForRegularStage()
             }
         }
 
         stage('Deploy') {
-            input{
+            input {
                 message 'Do you want to deploy?'
                 submitterParameter 'responder'
             }
             steps {
-                echo "Deploying application..."
-                script {
-                    statusComment = "[${env.JOB_NAME}] <${env.BUILD_URL}|#${env.BUILD_NUMBER}> ${env.STAGE_NAME} stage was approved by ${responder} for ${env.GIT_BRANCH}"
-                    slackSend color: '#0000ff', message: statusComment
-                }
+                deployApplication()
+                sendSlackNotificationForApprovedStage(responder)
             }
         }
     }
 
     post {
         success {
-            script {
-                statusComment = "[${env.JOB_NAME}] <${env.BUILD_URL}|#${env.BUILD_NUMBER}> completed succesfully for ${env.GIT_BRANCH} :tada:"
-                slackSend color: 'good', message: statusComment
-            }
+            sendSlackNotificationForSuccessfulBuild()
         }
         failure {
-            script {
-                statusComment = getTestResultsMessage()
-                slackSend color: 'danger', message: statusComment
-            }
+            sendSlackNotificationForFailedBuild()
         }
         aborted {
-            script {
-                statusComment = "[${env.JOB_NAME}] <${env.BUILD_URL}|#${env.BUILD_NUMBER}> for ${env.GIT_BRANCH} was aborted by ${getBuildUser()}"
-                slackSend message: statusComment
-            }
+            sendSlackNotificationForAbortedBuild()
         }
     }
 
+}
+
+void buildApplication() {
+    sh 'mvn -DskipTests clean package'
+}
+
+void runAllTests() {
+    sh 'mvn test'
+}
+
+void deployApplication() {
+    echo "Deploying application..."
+}
+
+void sendSlackNotificationForRegularStage() {
+    statusComment = "[${env.JOB_NAME}] <${env.BUILD_URL}|#${env.BUILD_NUMBER}> ${env.STAGE_NAME} stage completed succesfully for ${env.GIT_BRANCH}"
+    slackSend color: '#0000ff', message: statusComment
+}
+
+void sendSlackNotificationForApprovedStage(String responder) {
+    statusComment = "[${env.JOB_NAME}] <${env.BUILD_URL}|#${env.BUILD_NUMBER}> ${env.STAGE_NAME} stage was approved by ${responder} for ${env.GIT_BRANCH}"
+    slackSend color: '#0000ff', message: statusComment
+}
+
+void sendSlackNotificationForSuccessfulBuild() {
+    statusComment = "[${env.JOB_NAME}] <${env.BUILD_URL}|#${env.BUILD_NUMBER}> completed succesfully for ${env.GIT_BRANCH} :tada:"
+    slackSend color: 'good', message: statusComment
+}
+
+void sendSlackNotificationForFailedBuild() {
+    statusComment = getTestResultsMessage()
+    slackSend color: 'danger', message: statusComment
+}
+
+void sendSlackNotificationForAbortedBuild() {
+    statusComment = "[${env.JOB_NAME}] <${env.BUILD_URL}|#${env.BUILD_NUMBER}> for ${env.GIT_BRANCH} was aborted by ${getBuildUser()}"
+    slackSend message: statusComment
 }
 
 String getTestResultsMessage() {
