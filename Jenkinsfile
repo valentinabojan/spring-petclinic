@@ -6,19 +6,20 @@ pipeline {
     environment {
         MAVEN_INSTALLATION = 'maven-installation'
         MAVEN_SETTINGS_CONFIG = 'maven-settings.xml'
+        example = load "${pwd()}/stages.groovy "
     }
 
     stages {
         stage('Build') {
             steps {
-                buildApplication()
+                example.buildApplication()
                 sendSlackNotificationForRegularStage()
             }
         }
 
         stage('Test') {
             steps {
-                runAllTests()
+                example.runAllTests()
                 sendSlackNotificationForRegularStage()
             }
         }
@@ -29,7 +30,7 @@ pipeline {
                 submitterParameter 'responder'
             }
             steps {
-                deployApplication()
+                example.deployApplication()
                 sendSlackNotificationForApprovedStage(responder)
             }
         }
@@ -47,22 +48,6 @@ pipeline {
         }
     }
 
-}
-
-void buildApplication() {
-    withMaven(maven: MAVEN_INSTALLATION, mavenSettingsConfig: MAVEN_SETTINGS_CONFIG) {
-        sh 'mvn -DskipTests clean package'
-    }
-}
-
-void runAllTests() {
-    withMaven(maven: MAVEN_INSTALLATION, mavenSettingsConfig: MAVEN_SETTINGS_CONFIG) {
-        sh 'mvn test'
-    }
-}
-
-void deployApplication() {
-    echo "Deploying application..."
 }
 
 void sendSlackNotificationForRegularStage() {
