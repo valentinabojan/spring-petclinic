@@ -6,15 +6,20 @@ pipeline {
     environment {
         MAVEN_INSTALLATION = 'maven-installation'
         MAVEN_SETTINGS_CONFIG = 'maven-settings.xml'
-        example = load "stages.groovy"
     }
 
     stages {
+        stage('Init') {
+            steps {
+                script {
+                    stagesLib = load "stages.groovy"
+                }
+            }
+        }
         stage('Build') {
             steps {
                 script {
-                    sh 'ls -la'
-                    example.buildApplication()
+                    stagesLib.buildApplication()
                     sendSlackNotificationForRegularStage()
                 }
             }
@@ -23,7 +28,7 @@ pipeline {
         stage('Test') {
             steps {
                 script {
-                    example.runAllTests()
+                    stagesLib.runAllTests()
                     sendSlackNotificationForRegularStage()
                 }
             }
@@ -36,7 +41,7 @@ pipeline {
             }
             steps {
                 script {
-                    example.deployApplication()
+                    stagesLib.deployApplication()
                     sendSlackNotificationForApprovedStage(responder)
                 }
             }
