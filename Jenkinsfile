@@ -34,11 +34,14 @@ pipeline {
         }
 
         stage('Deploy') {
+            input{
+                message 'Do you want to deploy?'
+                submitterParameter 'responder'
+            }
             steps {
-                input(message: 'Do you want to deploy?')
-                echo 'Deploying application...'
+                echo "Deploying application..."
                 script {
-                    statusComment = "[${env.JOB_NAME}] <${env.BUILD_URL}|#${env.BUILD_NUMBER}> ${env.STAGE_NAME} stage was approved by ${getBuildUser()} for ${env.GIT_BRANCH}"
+                    statusComment = "[${env.JOB_NAME}] <${env.BUILD_URL}|#${env.BUILD_NUMBER}> ${env.STAGE_NAME} stage was approved by ${responder} for ${env.GIT_BRANCH}"
                     slackSend color: '#0000ff', message: statusComment
                 }
             }
