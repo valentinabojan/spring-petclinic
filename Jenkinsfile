@@ -49,13 +49,19 @@ pipeline {
 
     post {
         success {
-            slackNotifier.sendSlackNotificationForSuccessfulBuild()
+            script {
+                slackNotifier.sendSlackNotificationForSuccessfulBuild()
+            }
         }
         failure {
-            slackNotifier.sendSlackNotificationForFailedBuild()
+            script {
+                slackNotifier.sendSlackNotificationForFailedBuild()
+            }
         }
         aborted {
-            slackNotifier.sendSlackNotificationForAbortedBuild()
+            script {
+                slackNotifier.sendSlackNotificationForAbortedBuild()
+            }
         }
     }
 
