@@ -11,7 +11,7 @@ pipeline {
             steps {
                 script {
                     stagesLib = load "stages.groovy"
-                    slackNotifier = load "slackNotifier.groovy"
+                    slackNotifier = load "slack-notifier.groovy"
                 }
             }
         }
