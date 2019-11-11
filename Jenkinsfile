@@ -11,18 +11,14 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                withMaven(maven: MAVEN_INSTALLATION, mavenSettingsConfig: MAVEN_SETTINGS_CONFIG) {
-                    buildApplication()
-                }
+                buildApplication()
                 sendSlackNotificationForRegularStage()
             }
         }
 
         stage('Test') {
             steps {
-                withMaven(maven: MAVEN_INSTALLATION, mavenSettingsConfig: MAVEN_SETTINGS_CONFIG) {
-                    runAllTests()
-                }
+                runAllTests()
                 sendSlackNotificationForRegularStage()
             }
         }
@@ -54,11 +50,15 @@ pipeline {
 }
 
 void buildApplication() {
-    sh 'mvn -DskipTests clean package'
+    withMaven(maven: MAVEN_INSTALLATION, mavenSettingsConfig: MAVEN_SETTINGS_CONFIG) {
+        sh 'mvn -DskipTests clean package'
+    }
 }
 
 void runAllTests() {
-    sh 'mvn test'
+    withMaven(maven: MAVEN_INSTALLATION, mavenSettingsConfig: MAVEN_SETTINGS_CONFIG) {
+        sh 'mvn test'
+    }
 }
 
 void deployApplication() {
